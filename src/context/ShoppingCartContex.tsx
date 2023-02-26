@@ -5,10 +5,14 @@ type ShoppingCartProviderProps = {
 }
 
 type ShoppingCartContex = {
+    openCart: () => void
+    closeCart: () => void
     getItemQuantity: (id: number) => number
     increaseCartQuantity: (id: number) => void
     decreaseCartQuantity: (id: number )=> void
     removeFromCart: (id: number )=> void
+    cartQuantity: number
+    cartItems: CartItem[]
 }
 
 type CartItem = {
@@ -28,7 +32,10 @@ export function useShoppingCart() {
 //Provider
 
 export function ShoppingCartProvider( {children} : ShoppingCartProviderProps){
+    const [isOpen, setIsOpen] = useState(false)
     const [cartItems, setCartItems] = useState<CartItem[]>([])
+
+    const cartQuantity = cartItems.reduce((quantity, item)=> item.quantity + quantity, 0)
     //Qui creo le funzioni che ho dichiarato le type sopra
     function getItemQuantity(id:number){
         return cartItems.find(item => item.id === id)?.quantity || 0
@@ -71,8 +78,24 @@ export function ShoppingCartProvider( {children} : ShoppingCartProviderProps){
             return currItems.filter(item => item.id !== id)
         })
     }
+
+    function openCart (){
+        setIsOpen(true)
+    }
+
+    function closeCart(){
+        setIsOpen(false)
+    }
    return (
-     <ShoppingCartContex.Provider value={{getItemQuantity, increaseCartQuantity, decreaseCartQuantity, removeFromCart}}>
+     <ShoppingCartContex.Provider value={{
+    getItemQuantity,
+    increaseCartQuantity,
+    decreaseCartQuantity,
+    removeFromCart,
+    cartItems,
+    cartQuantity,
+    openCart,
+    closeCart}}>
     {children}
    </ShoppingCartContex.Provider>
    )
